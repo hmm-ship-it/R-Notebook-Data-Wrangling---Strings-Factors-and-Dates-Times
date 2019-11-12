@@ -1,0 +1,186 @@
+---
+title: "R Notebook"
+output: github_document
+always_allow_html: yes
+---
+
+```{r}
+library(tidyverse)
+library(stringr)
+
+```
+
+Strings are surrounded by quotes or apostrophes
+backslash escapes the character interpretation. This means R won't use it for syntax,instead treat it as text
+\\"
+
+writeLines(x) would output the string excluding control charcters such as the backslash
+
+\\n is newline
+
+\\t is tab
+
+?'"'
+
+Multiple strings can be stored in a character vector
+c("one", "two", "three")
+
+str_length() returns number of characters in a string
+
+```{r}
+str_length(c("hi", "not", NA))
+```
+
+to combined strings use str_c(x, y)
+
+str_c("x", "y", sep =", ") separates strings by sep=
+"x, y"
+
+Missing values don't play nicely, use str_replace_na for them
+x <- c("abd", NA)
+str_c("|", str_replace_na(x), "-|")
+
+using a list within a list in str_c shorter vectors will be expanded to match longer vectors
+str_c("pre", c("a","b","c"),"post")
+To change a vector of strings to a single string use collapse
+str_c("x", "y", "z", collapse =",")
+
+x <- c("Apple", "Banana", "Pear")
+parts of string obtained by str_sub(x,1,3)
+\# > App , Ban, Pea
+str_to_lower(str_sub(x,1,1))
+app ban pea
+
+str_to_upper str_to_title etc...
+
+specify locale for inter-operable code via different countries
+str_sort(x, locale ="en")
+
+1. The are the same except for a default separator. "" vs " "
+2. sep applies a character/s between strings that are being combined. collapse applies a character between a chacracter vector
+3.
+```{r}
+x <- "12345678"
+len <- str_length(x)
+str_sub(x, ceiling(len/2),ceiling(len/2))
+```
+
+4. str_wrap outputs text in paragraph form. You set line width, indent and exdent. I would use it to output code that fits on a screen. would need to 
+get screen size variables for it to be useful. would be handy for console output.
+5. trim removes excessive spacing from the beginning, end, and between characters in a string.
+6. str_c("a", "b", "c", sep'",")
+
+
+#Regular Expressions
+
+str_view() and str_view_all()
+
+```{r}
+
+x <- c("apple", "banana", "pear")
+str_view(x, "an")
+str_view(c("abc","a.c","bef"),"a\\.c")
+```
+. matches any character except newline
+because the escape character is evaluated twice, once by the string it is in, and once by the REGEX you need to include a \ per function e.g.
+\\.
+The period has no special meaning in a string, so the string feature of r will be confused. It needs to include another \ to say hey strings, this is normal...and then the REGEX go hey \ treat the next special character like its just a character.
+
+If you try to match a \ you need to apply a \ per function of str(REGEX()) REGEX needs \\
+String then needs a backslash per backslash to pass to REGEX therefore \\\\
+
+1.First escapse the special meaning of "  , second creates a backslash string but the REGEX it means escape, third escapes the meaning of one backslash, but the other is still an escape character.
+```{r}
+x <- "\"'\\"
+writeLines(x)
+str_view(x, "\"\'\\\\")
+str_view(x, "\"'\\\\")
+```
+
+2. \"\'\\\\
+3. This patter will match . anychar . anychar . any char
+.a.b.c
+
+#Anchors
+
+Match from start ^
+Match from end $
+
+^a
+apple
+
+a$
+Banana
+
+complete string matching
+^apple$
+
+use \\b to match boundary between words and non-word characters
+```{r}
+x <- "\"$^$\""
+writeLines(x)
+str_view(x,"\"\\$\\^\\$\"")
+```
+
+1. \"\\$\\^\\$\""
+To be completely honest escape characters being used for both strings and regular expressions makes regular expressions
+a pain in R
+
+2. str_view(stringr::words, REGEX_HERE, match = TRUE)
+  ^y
+   x$
+   ^...$
+   ^.......
+
+#matching sets
+
+\\d matches a digit
+\\s matches any whitespace (space, tab, newline)
+[abc] matches a b or c
+[^abc] matches anything except a b or c
+
+
+REGEX special characters $. | ? * + ( ) [ { .
+The above can be used within [] without a backslash
+
+these can't though
+] \ ^ and -
+
+1. str_view(x, "^[aeiou]")
+  str_view(x, "^[^aeiou]")
+  str_view(x, "[^e]ed$")
+  str_view(x, "i[ng|se]$")
+  
+2.str_view(x, "ie|[^c]ie")
+3.str_view(x, "q[^u]")
+4.???
+5.str_view(x, "\\([0-9]{3,}\\)[0-9]{3,}\\-[0-9]{4,}")
+```{r}
+x <- c("(831)559-5555", "()351-4565", "(000)000 0000", "000-(000)-9999")
+str_view(x, "\\([0-9]{3,}\\)[0-9]{3,}\\-[0-9]{4,}")
+```
+
+? 0 or 1 match
++ 1 or more match
+* 0 or more matches
+{min,max} if min or max is missing replace with infinity. If there is only one number exactly {m}
+
+1.
+ {,1}
+ {1,}
+ {0,}
+2.
+  match any existing string
+  match any string surrounded by curly braces
+  match 4 numbers by 2 by 2 where by is -
+  match 4 back slashes
+  
+3.
+  str_view(x, "^[^aeiou]{3}")
+  str_view(x, "[aeiou]{3,}")
+  str_view(x, "[^aeiou][aeiou]{2,}")
+4.
+
+
+
+
